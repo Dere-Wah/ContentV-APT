@@ -23,6 +23,8 @@ from diffusers import AutoencoderKLWan, FlowMatchEulerDiscreteScheduler
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.video_processor import VideoProcessor
 from typing import Any, Callable, Dict, List, Optional, Union
+
+from attention.causal_attention import CausalBlockAttnProcessorNPU
 from contentv_transformer import SD3Transformer3DModel
 from transformers import (
     CLIPTextModelWithProjection,
@@ -332,6 +334,12 @@ class ContentVPipeline(StableDiffusion3Pipeline):
         timesteps = self.scheduler.timesteps
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
         self._num_timesteps = len(timesteps)
+
+        with self.progress_bar(total=num_frames) as progress_bar:
+            for i, t in enumerate(num_frames):
+                if self.interrupt:
+                    continue
+
 
         # 6. Denoising loop
         with self.progress_bar(total=num_inference_steps) as progress_bar:
