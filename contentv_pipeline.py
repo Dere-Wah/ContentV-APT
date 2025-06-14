@@ -24,7 +24,6 @@ from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.video_processor import VideoProcessor
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from attention.causal_attention import CausalBlockAttnProcessorNPU
 from contentv_transformer import SD3Transformer3DModel
 from transformers import (
     CLIPTextModelWithProjection,
@@ -156,6 +155,7 @@ class ContentVPipeline(StableDiffusion3Pipeline):
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
         callback_on_step_end_tensor_inputs: List[str] = ["latents"],
         max_sequence_length: int = 256,
+        initial_frame: torch.Tensor = None
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -335,12 +335,6 @@ class ContentVPipeline(StableDiffusion3Pipeline):
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
         self._num_timesteps = len(timesteps)
 
-        with self.progress_bar(total=num_frames) as progress_bar:
-            for i, t in enumerate(num_frames):
-                if self.interrupt:
-                    continue
-
-
         # 6. Denoising loop
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
@@ -358,18 +352,6 @@ class ContentVPipeline(StableDiffusion3Pipeline):
                     joint_attention_kwargs=self.joint_attention_kwargs,
                     return_dict=False,
                 )[0]
-
-                # perform guidance
-                if self.do_classifier_free_guidance:
-                    noise_pred_uncond = self.transformer(
-                        hidden_states=latents,
-                        timestep=timestep,
-                        encoder_hidden_states=negative_prompt_embeds,
-                        pooled_projections=negative_pooled_prompt_embeds,
-                        joint_attention_kwargs=self.joint_attention_kwargs,
-                        return_dict=False,
-                    )[0]
-                    noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred - noise_pred_uncond)
 
                 # compute the previous noisy sample x_t -> x_t-1
                 latents_dtype = latents.dtype
