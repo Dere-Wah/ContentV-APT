@@ -84,6 +84,7 @@ Our open-source 8B model (based on Stable Diffusion 3.5 Large and Wan-VAE) achie
 git clone https://github.com/bytedance/ContentV.git
 cd ContentV
 pip3 install -r requirements.txt
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
 #### T2V Generation
