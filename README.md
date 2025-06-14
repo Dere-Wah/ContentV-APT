@@ -1,3 +1,26 @@
+# ContentV-APT: converting a bidirectional video generator into an autoregressive one.
+
+Milestones:
+
+## (1) Diffusion Adaptation
+
+- [ ] Autoregressive Generation with N steps lookback
+- [ ] Update of inputs to allow for previous-frame conditioning, through channel concatenation
+- [ ] Train for diffusion adaptation
+
+## (2) Consistency Distillation
+
+- _TBD_
+
+## (3) Adversarial Training (-> AAPT)
+
+- _TBD_
+
+The steps detailed above are following the research ["Autoregressive Adversarial Post-Training
+for Real-Time Interactive Video Generation"](https://seaweed-apt.com/2), in an attempt to reproduce their results from
+scratch.
+
+
 # ContentV: Efficient Training of Video Generation Models with Limited Compute
 
 <div align="center">
